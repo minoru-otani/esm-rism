@@ -37,12 +37,6 @@ root_dir = '/Users/otani/code/'
 cmp_host = 'mac'
 #cmp_host = 'ohtaka'
 
-# %% [markdown]
-# このファイルでは以下のような構成を考えいている。
-# - このファイル自体はiCloudで同期されている。
-# - ファイルのセーブ時にはoutputセルは消去してファイルサイズは最小を保つ。
-# - データはroot_dir下に置かれる。ファイルサイズは大きくなるので、クラウドではなく各マシンのローカルフォルダに置かれていることを想定
-
 # %% [markdown] tags=[]
 # # RISM-DEVの計算
 
