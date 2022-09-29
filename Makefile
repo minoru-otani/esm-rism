@@ -21,4 +21,4 @@ help:
 
 # Live reload site documents for local development
 livehtml:
-	sphinx-autobuild "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O)
+	sphinx-autobuild --port 8001 "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O)
