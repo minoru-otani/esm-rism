@@ -32,40 +32,39 @@ from ase.io.espresso import read_espresso_out
 from ase.visualize import view
 from ase.visualize.plot import plot_atoms
 from ase.units import Bohr
+import warnings
+warnings.filterwarnings('ignore')
 #
 root_dir = '/Users/otani/code/'
 cmp_host = 'mac'
 #cmp_host = 'ohtaka'
 
-# %% [markdown] tags=[]
-# # RISM-DEVの計算
+# %% [markdown] tags=[] jp-MarkdownHeadingCollapsed=true
+# # rism_expand_oneside(54d66b07)の計算
 
-# %% [markdown] tags=[]
-# ## 本山さんの計算
+# %% [markdown] tags=["remove-cell"]
+# 本山さんの計算を読み込んで構造をAtomに読み込む。
 
-# %% [markdown] toc-hr-collapsed=true toc-hr-collapsed=true
-# ### motoyama/
+# %% [markdown] toc-hr-collapsed=true toc-hr-collapsed=true tags=["remove-cell"]
+# ## motoyama/
 
-# %% [markdown] jp-MarkdownHeadingCollapsed=true tags=[] jp-MarkdownHeadingCollapsed=true tags=[] jp-MarkdownHeadingCollapsed=true tags=[] jp-MarkdownHeadingCollapsed=true tags=[]
-# #### Li-EtOH構造の読み込み
+# %% [markdown] jp-MarkdownHeadingCollapsed=true tags=[] jp-MarkdownHeadingCollapsed=true tags=[] jp-MarkdownHeadingCollapsed=true tags=[] jp-MarkdownHeadingCollapsed=true tags=["remove-cell"]
+# ### Li-EtOH構造の読み込み
 
-# %% [markdown]
+# %% [markdown] tags=["remove-cell"]
 # 本山さんの用意した入力ファイルを読み込む。root_dirの下のwork_dirの中でファイルを展開した。
 
-# %%
+# %% tags=["remove-cell"]
 work_dir = root_dir + 'motoyama/Li-EtOH/'
 pprefix = 'Li-EtOH'
 
-# %% [markdown]
-# まず、左右が対象の`R8+8`を読み込んで構造データを読み込む
+# %% [markdown] tags=[]
+# まず、本山さんが用意した左右が対象の`R8+8`を読み込んで構造データを読み込み、構造を出力する。
 
-# %%
+# %% tags=["remove-cell"]
 qe_input = read(work_dir + 'R8+8/' + pprefix + '.in', format='espresso-in')
 
-# %% [markdown]
-# 読み込んだ構造を出力する。
-
-# %% tags=[]
+# %% tags=["remove-input"]
 aobj = qe_input
 print(f' Unit cell: a = ({aobj.cell[0,0]:9.5f}, {aobj.cell[0,1]:9.5f}, {aobj.cell[0,2]:9.5f})')
 print(f'            b = ({aobj.cell[1,0]:9.5f}, {aobj.cell[1,1]:9.5f}, {aobj.cell[1,2]:9.5f})')
@@ -75,17 +74,19 @@ print(f' Species, Positions:')
 for i in range(len(aobj.positions)):
     print(f'  \'{aobj.symbols[i]:<2}\' ({aobj.positions[i,0]:9.5f}, {aobj.positions[i,1]:9.5f}, {aobj.positions[i,2]:9.5f})')
 
-# %% [markdown] tags=[] toc-hr-collapsed=true tags=[] toc-hr-collapsed=true
-# ### 2022091115/
+# %% [markdown] tags=[] toc-hr-collapsed=true tags=[] toc-hr-collapsed=true tags=["remove-cell"]
+# ## 2022091115/
 
-# %% [markdown] tags=[] toc-hr-collapsed=true tags=[] toc-hr-collapsed=true toc-hr-collapsed=true tags=[] toc-hr-collapsed=true
-# #### Li-EtOHのESM計算
+# %% [markdown] tags=[] toc-hr-collapsed=true tags=[] toc-hr-collapsed=true toc-hr-collapsed=true tags=[] toc-hr-collapsed=true tags=[] toc-hr-collapsed=true
+# ### Li-slabのESM計算
+
+# %% [markdown] tags=[] jp-MarkdownHeadingCollapsed=true tags=["remove-cell"]
+# #### prefix, rood_dir, work_dir設定
 
 # %% [markdown] tags=[] jp-MarkdownHeadingCollapsed=true tags=[]
-# ##### prefix, rood_dir, work_dir設定
-# 計算する真空の厚みを8~32Ang.に変化させて計算する。
+# この構造でESM計算を実施する。右の真空の厚みを8、16, 24, 32$\mathrm{\mathring{A}}$に変化させて計算する。
 
-# %%
+# %% tags=["remove-cell"]
 prefix = ['r8_bc1', 'r16_bc1', 'r24_bc1', 'r32_bc1']
 lvac = 8.0
 rvac = [8.0, 16.0, 24.0, 32.0]
@@ -98,10 +99,10 @@ qeroot_dir = '/Users/otani/Program/q-e/'
 pseudo_dir = qeroot_dir + 'pseudo/'
 temp_dir = qeroot_dir + 'tempdir/'
 
-# %% [markdown] tags=[] jp-MarkdownHeadingCollapsed=true
-# ##### 入力ファイルを生成
+# %% [markdown] tags=[] jp-MarkdownHeadingCollapsed=true tags=["remove-cell"]
+# #### 入力ファイルを生成
 
-# %% tags=[]
+# %% tags=["remove-cell"]
 for index, item in enumerate(prefix):
     #新しいobjectにqe_inputをコピー
     slab_ESM = copy.deepcopy(qe_input)
@@ -154,10 +155,10 @@ for index, item in enumerate(prefix):
     write(inpfile, slab_ESM, format='espresso-in', input_data=input_data, 
       pseudopotentials=pseudopotentials, kpts=(2, 2, 1), koffset=(0, 0, 0))
 
-# %% [markdown] tags=[] jp-MarkdownHeadingCollapsed=true jp-MarkdownHeadingCollapsed=true tags=[]
-# ##### ジョブスクリプトの作成
+# %% [markdown] tags=[] jp-MarkdownHeadingCollapsed=true jp-MarkdownHeadingCollapsed=true tags=["remove-cell"]
+# #### ジョブスクリプトの作成
 
-# %% tags=[]
+# %% tags=["remove-cell"]
 try:
     cmp_host
 except NameError:
@@ -194,10 +195,10 @@ else:
     else:
         print('no calculation resorce specified!')
 
-# %% [markdown] tags=[] jp-MarkdownHeadingCollapsed=true jp-MarkdownHeadingCollapsed=true tags=[]
-# ##### 構造を確認する。
+# %% [markdown] tags=[] jp-MarkdownHeadingCollapsed=true jp-MarkdownHeadingCollapsed=true tags=["remove-cell"]
+# #### 構造を確認する。
 
-# %%
+# %% tags=["remove-cell"]
 aobj = copy.deepcopy(qe_input)
 lvac = 8.0
 rvac = 32.0
@@ -224,10 +225,10 @@ plot_atoms(aobj, ax, radii=0.8, rotation=('90x,90y,90z'))
 #plt.savefig("fig4.eps") 
 plt.show()
 
-# %% [markdown] tags=[]
-# ##### 結果をプロット
+# %% [markdown] tags=["remove-cell"]
+# #### 結果をプロット
 
-# %% tags=[]
+# %% tags=["remove-input"]
 #プロットのデフォルト値にリセット
 plt.rcParams.update(plt.rcParamsDefault)
 
@@ -313,16 +314,37 @@ plt.vlines( 30.86/2- 8, y_min, y_max, linestyle='solid', color='r')
 plt.vlines( 38.86/2- 4, y_min, y_max, linestyle='solid', color='g')
 plt.vlines( 46.86/2   , y_min, y_max, linestyle='solid', color='b')
 #plt.savefig(work_dir + 'esm.pdf')
+fig.set_tight_layout(False)
 plt.show()
 
-# %% [markdown] tags=[] toc-hr-collapsed=true tags=[] jp-MarkdownHeadingCollapsed=true toc-hr-collapsed=true toc-hr-collapsed=true toc-hr-collapsed=true
-# #### Li-EtOHの共通メッシュESM-RISM計算
+# %% [markdown]
+# `````{admonition} 結果
+# :class: info
+# - セルを大きくすると、左右のポテンシャルの高さが違う。
+# - 右と左のポテンシャルの中間がエネルギー0のところに出ているので、その部分は正しい。
+# `````
+
+# %% [markdown]
+# `````{admonition} 考察
+# :class: important
+# - 本来なら、セルを伸ばしても中性表面なら左右うのポテンシャルの差は変わらないはず
+# `````
 
 # %% [markdown] tags=[]
-# ##### prefix, rood_dir, work_dir設定
+# `````{admonition} Todo
+# :class: warning
+# - 要検証
+# - セルの大きさや、スラブの位置などを変えながら何が問題かを検証する。
+# `````
+
+# %% [markdown] tags=[] toc-hr-collapsed=true tags=[] jp-MarkdownHeadingCollapsed=true toc-hr-collapsed=true toc-hr-collapsed=true toc-hr-collapsed=true toc-hr-collapsed=true tags=[]
+# ### Li-EtOHの共通メッシュESM-RISM計算
+
+# %% [markdown] tags=["remove-cell"]
+# #### prefix, rood_dir, work_dir設定
 # 計算する真空の厚みを8~32Ang.に変化させて計算する。
 
-# %%
+# %% tags=["remove-cell"]
 prefix = ['r8_rism', 'r16_rism', 'r24_rism', 'r32_rism']
 lvac = 8.0
 rvac = [8.0, 16.0, 24.0, 32.0]
@@ -336,10 +358,10 @@ qeroot_dir = '/Users/otani/Program/q-e/'
 pseudo_dir = qeroot_dir + 'pseudo/'
 temp_dir = qeroot_dir + 'tempdir/'
 
-# %% [markdown] tags=[]
-# ##### 入力ファイルを生成
+# %% [markdown] tags=["remove-cell"]
+# #### 入力ファイルを生成
 
-# %% tags=[]
+# %% tags=["remove-cell"]
 rism_start = [1.0, -3.0, -7.0, -11.0]
 for index, item in enumerate(prefix):
     #新しいobjectにqe_inputをコピー
@@ -432,10 +454,10 @@ for index, item in enumerate(prefix):
     write(inpfile, slab_ESM, format='espresso-in', input_data=input_data, solvents_info=solv_info,
       pseudopotentials=pseudopotentials, kpts=(2, 2, 1), koffset=(0, 0, 0))
 
-# %% [markdown] tags=[]
-# ##### ジョブスクリプトの作成
+# %% [markdown] tags=["remove-cell"]
+# #### ジョブスクリプトの作成
 
-# %% tags=[]
+# %% tags=["remove-cell"]
 try:
     cmp_host
 except NameError:
@@ -476,10 +498,10 @@ else:
     else:
         print('no calculation resorce specified!')
 
-# %% [markdown] tags=[]
-# ##### 結果をプロット
+# %% [markdown] tags=["remove-cell"]
+# #### 結果をプロット
 
-# %% tags=[]
+# %% tags=["remove-input"]
 #プロットのデフォルト値にリセット
 plt.rcParams.update(plt.rcParamsDefault)
 
@@ -513,7 +535,7 @@ plt.rcParams.update(config)
 
 fig = plt.figure()
 # figureのタイトル
-fig.suptitle("ESM")
+fig.suptitle("RISM(common mesh)")
     
 data_esm1 = []
 for index, item in enumerate(prefix):
@@ -573,16 +595,32 @@ plt.vlines( 30.86/2- 8+30.0, y_min, y_max, linestyle='dotted', color='r')
 plt.vlines( 38.86/2- 4+30.0, y_min, y_max, linestyle='dotted', color='g')
 plt.vlines( 46.86/2   +30.0  , y_min, y_max, linestyle='dotted', color='b')
 #plt.savefig(work_dir + 'esm.pdf')
+fig.set_tight_layout(False)
 plt.show()
 
-# %% [markdown] jp-MarkdownHeadingCollapsed=true tags=[] jp-MarkdownHeadingCollapsed=true jp-MarkdownHeadingCollapsed=true tags=[] toc-hr-collapsed=true toc-hr-collapsed=true toc-hr-collapsed=true
-# #### Li-EtOHの個別メッシュESM-RISM計算
+# %% [markdown]
+# `````{admonition} 結果
+# :class: info
+# - セルを大きくしても収束する傾向が見られない。
+# - セルの外に出て、expand_cellに入った領域でも波打っている。この部分はg_parallel=0の攻のみで頑張っている。
+# - セルを伸ばせば伸ばしても平らになる領域が増えるのではなく、セルの端の方まポテンシャルが曲率をもつ方向に行っているようだ。
+# `````
 
-# %% [markdown] tags=[] jp-MarkdownHeadingCollapsed=true
-# ##### prefix, rood_dir, work_dir設定
+# %% [markdown]
+# `````{admonition} 考察
+# :class: important
+# - expand_cellの領域はg_parallel=0の成分のみしかないので、結果は多分正しくない。
+# - cellとexpand_cellの継ぎ目の領域がおかしい問題が出てきている？
+# `````
+
+# %% [markdown] jp-MarkdownHeadingCollapsed=true tags=[] jp-MarkdownHeadingCollapsed=true jp-MarkdownHeadingCollapsed=true tags=[] toc-hr-collapsed=true toc-hr-collapsed=true toc-hr-collapsed=true tags=[] toc-hr-collapsed=true
+# ### Li-EtOHの個別メッシュESM-RISM計算
+
+# %% [markdown] tags=[] jp-MarkdownHeadingCollapsed=true tags=["remove-cell"]
+# #### prefix, rood_dir, work_dir設定
 # rvac=8.0のセルでESM計算で収束した電子状態を使って本山さんの開発したコードでRISM領域を広げながら計算する。
 
-# %%
+# %% tags=["remove-cell"]
 prefix = ['r8+8_rism', 'r8+16_rism', 'r8+24_rism']
 lvac = 8.0
 rvac = 8.0
@@ -595,10 +633,10 @@ qeroot_dir = '/Users/otani/Program/q-e/'
 pseudo_dir = qeroot_dir + 'pseudo/'
 temp_dir = qeroot_dir + 'tempdir/'
 
-# %% [markdown] tags=[] jp-MarkdownHeadingCollapsed=true
-# ##### 入力ファイルを生成
+# %% [markdown] tags=[] jp-MarkdownHeadingCollapsed=true tags=["remove-cell"]
+# #### 入力ファイルを生成
 
-# %% tags=[]
+# %% tags=["remove-cell"]
 rism_length = [8.0, 16.0, 24.0]
 for index, item in enumerate(prefix):
     #新しいobjectにqe_inputをコピー
@@ -692,10 +730,10 @@ for index, item in enumerate(prefix):
     write(inpfile, slab_ESM, format='espresso-in', input_data=input_data, solvents_info=solv_info,
       pseudopotentials=pseudopotentials, kpts=(2, 2, 1), koffset=(0, 0, 0))
 
-# %% [markdown] tags=[] jp-MarkdownHeadingCollapsed=true
-# ##### ジョブスクリプトの作成
+# %% [markdown] tags=[] jp-MarkdownHeadingCollapsed=true tags=["remove-cell"]
+# #### ジョブスクリプトの作成
 
-# %% tags=[]
+# %% tags=["remove-cell"]
 try:
     cmp_host
 except NameError:
@@ -736,10 +774,10 @@ else:
     else:
         print('no calculation resorce specified!')
 
-# %% [markdown]
-# ##### 結果をプロット
+# %% [markdown] tags=["remove-cell"]
+# #### 結果をプロット
 
-# %% tags=[]
+# %% tags=["remove-input"]
 #プロットのデフォルト値にリセット
 plt.rcParams.update(plt.rcParamsDefault)
 
@@ -773,7 +811,7 @@ plt.rcParams.update(config)
 
 fig = plt.figure()
 # figureのタイトル
-fig.suptitle("ESM")
+fig.suptitle("RISM(individual mesh)")
     
 data_esm1 = []
 for index, item in enumerate(prefix):
@@ -796,11 +834,11 @@ ax = fig.add_subplot(2, 1, 1)
 ax.set_xlabel(r"$z~(\mathrm{\AA})$")
 ax.set_ylabel(r"$V_\mathrm{electrostatic}~(\mathrm{eV})$")
 ax.plot(data_esm1[3][:,0]-12,data_esm1[3][:,4], color='b')
-ax.plot(data_esm1[2][:,0]-12 ,data_esm1[2][:,4], color='g')
-ax.plot(data_esm1[1][:,0]-12 ,data_esm1[1][:,4], color='r')
+ax.plot(data_esm1[2][:,0]-12,data_esm1[2][:,4], color='g')
+ax.plot(data_esm1[1][:,0]-12,data_esm1[1][:,4], color='r')
 ax.plot(data_esm1[0][:,0]-12,data_esm1[0][:,4], color='k')
 # https://pystyle.info/matplotlib-legend/
-labels = ['R8','R16','R24','R32']
+labels = ['R32','R24','R16','R8']
 plt.legend(labels, loc='upper left', bbox_to_anchor=(1, 1), fontsize=config['font.size']-5, frameon=False)
 #y軸の範囲を自動設定にしているが、その時のymaxとyminを取得して、縦線の上限・下限値としたい。
 y_min, y_max = ax.get_ylim()
@@ -837,19 +875,42 @@ plt.vlines( 30.86/2- 8+30.0, y_min, y_max, linestyle='dotted', color='r')
 plt.vlines( 38.86/2- 4+30.0, y_min, y_max, linestyle='dotted', color='g')
 plt.vlines( 46.86/2   +30.0  , y_min, y_max, linestyle='dotted', color='b')
 #plt.savefig(work_dir + 'esm.pdf')
+fig.set_tight_layout(False)
 plt.show()
 
-# %% [markdown] toc-hr-collapsed=true tags=[] toc-hr-collapsed=true toc-hr-collapsed=true
-# ### 2022091715/
+# %% [markdown]
+# `````{admonition} 結果
+# :class: info
+# - R24だけ大きく異なる結果だが、それ以外は何となく収束してそう？
+# `````
 
-# %% [markdown] tags=[] toc-hr-collapsed=true tags=[] toc-hr-collapsed=true jp-MarkdownHeadingCollapsed=true toc-hr-collapsed=true
-# #### Li-EtOHのESM計算(lrism-6.1を使う)
+# %% [markdown]
+# `````{admonition} 考察
+# :class: important
+# - R24だけおかしいのが分からない。
+# `````
 
-# %% [markdown] tags=[] jp-MarkdownHeadingCollapsed=true
-# ##### prefix, rood_dir, work_dir設定
+# %% [markdown] tags=[]
+# `````{admonition} Todo
+# :class: warning
+# - 要検証
+# - DFTのセルは共通なので、同じ収束した状態からRISMを一回だけ収束させた計算をして、RISMセルの大きさを変えてもRISMの分布が変わらないかを見るのは有効そう。
+# `````
+
+# %% [markdown] tags=[]
+# # lrism-6.1(238e374)の計算
+
+# %% [markdown] toc-hr-collapsed=true tags=[] toc-hr-collapsed=true toc-hr-collapsed=true tags=["remove-cell"]
+# ## 2022091715/
+
+# %% [markdown] tags=[] toc-hr-collapsed=true tags=[] toc-hr-collapsed=true jp-MarkdownHeadingCollapsed=true toc-hr-collapsed=true tags=[] toc-hr-collapsed=true
+# ### Li-slabのESM計算
+
+# %% [markdown] tags=[] jp-MarkdownHeadingCollapsed=true tags=["remove-cell"]
+# #### prefix, rood_dir, work_dir設定
 # 計算する真空の厚みを8~32Ang.に変化させて計算する。
 
-# %%
+# %% tags=["remove-cell"]
 prefix = ['r8_bc1', 'r16_bc1', 'r24_bc1', 'r32_bc1']
 lvac = 8.0
 rvac = [8.0, 16.0, 24.0, 32.0]
@@ -862,10 +923,10 @@ qeroot_dir = '/Users/otani/Program/q-e/worktree/lrism-6.1/'
 pseudo_dir = qeroot_dir + 'pseudo/'
 temp_dir = qeroot_dir + 'tempdir/'
 
-# %% [markdown] tags=[] jp-MarkdownHeadingCollapsed=true
-# ##### 入力ファイルを生成
+# %% [markdown] tags=[] jp-MarkdownHeadingCollapsed=true tags=["remove-cell"]
+# #### 入力ファイルを生成
 
-# %% tags=[]
+# %% tags=["remove-cell"]
 for index, item in enumerate(prefix):
     #新しいobjectにqe_inputをコピー
     slab_ESM = copy.deepcopy(qe_input)
@@ -918,10 +979,10 @@ for index, item in enumerate(prefix):
     write(inpfile, slab_ESM, format='espresso-in', input_data=input_data, 
       pseudopotentials=pseudopotentials, kpts=(2, 2, 1), koffset=(0, 0, 0))
 
-# %% [markdown] tags=[] jp-MarkdownHeadingCollapsed=true
-# ##### ジョブスクリプトの作成
+# %% [markdown] tags=[] jp-MarkdownHeadingCollapsed=true tags=["remove-cell"]
+# #### ジョブスクリプトの作成
 
-# %% tags=[]
+# %% tags=["remove-cell"]
 try:
     cmp_host
 except NameError:
@@ -956,10 +1017,10 @@ else:
     else:
         print('no calculation resorce specified!')
 
-# %% [markdown] tags=[]
-# ##### 結果をプロット
+# %% [markdown] tags=["remove-cell"]
+# #### 結果をプロット
 
-# %% tags=[]
+# %% tags=["remove-input"]
 #プロットのデフォルト値にリセット
 plt.rcParams.update(plt.rcParamsDefault)
 
@@ -1036,7 +1097,7 @@ ax.plot(data_esm1[3][:,0],   data_esm1[3][:,4], color='blue')
 ax.plot(data_esm1[2][:,0]-4, data_esm1[2][:,4], color='green')
 ax.plot(data_esm1[1][:,0]-8, data_esm1[1][:,4], color='red')
 ax.plot(data_esm1[0][:,0]-12,data_esm1[0][:,4], color='black')
-plt.ylim(-0.1,0.1)
+plt.ylim(-0.04,0.04)
 y_min, y_max = ax.get_ylim()
 plt.ylim(y_min,y_max)
 plt.vlines(-22.86/2-12, y_min, y_max, linestyle='solid', color='k')
@@ -1045,16 +1106,37 @@ plt.vlines( 30.86/2- 8, y_min, y_max, linestyle='solid', color='r')
 plt.vlines( 38.86/2- 4, y_min, y_max, linestyle='solid', color='g')
 plt.vlines( 46.86/2   , y_min, y_max, linestyle='solid', color='b')
 #plt.savefig(work_dir + 'esm.pdf')
+fig.set_tight_layout(False)
 plt.show()
 
-# %% [markdown] tags=[] toc-hr-collapsed=true tags=[] toc-hr-collapsed=true
-# #### Li-EtOHの共通メッシュESM-RISM計算(lrism-6.1を使う)
+# %% [markdown]
+# `````{admonition} 結果
+# :class: info
+# - セルを大きくすると、左右のポテンシャル差がやはり出ている。
+# `````
 
-# %% [markdown] tags=[] jp-MarkdownHeadingCollapsed=true
-# ##### prefix, rood_dir, work_dir設定
+# %% [markdown]
+# `````{admonition} 考察
+# :class: important
+# - rism_exapnd_onesideよりも何となく理解できる結果→一番長いのが誤差が大きい。exp(), cosh()のzが大きい領域での誤差の対処が甘い？ 
+# - この計算でDFTセルの大きさを変えても結果が収束していないと、これにRISMを乗せたときに共通メッシュの場合は結果が違って当たり前。
+# `````
+
+# %% [markdown] tags=[]
+# `````{admonition} Todo
+# :class: warning
+# - 要検証
+# - セルの大きさや、スラブの位置などを変えながら何が問題かを検証する。
+# `````
+
+# %% [markdown] tags=[] toc-hr-collapsed=true tags=[] toc-hr-collapsed=true jp-MarkdownHeadingCollapsed=true toc-hr-collapsed=true toc-hr-collapsed=true tags=[]
+# ### Li-EtOHのESM-RISM計算(expand-cellなし)
+
+# %% [markdown] tags=[] jp-MarkdownHeadingCollapsed=true tags=["remove-cell"]
+# #### prefix, rood_dir, work_dir設定
 # 計算する真空の厚みを8~32Ang.に変化させて計算する。
 
-# %%
+# %% tags=["remove-cell"]
 prefix = ['r8_rism', 'r16_rism', 'r24_rism', 'r32_rism']
 lvac = 8.0
 rvac = [8.0, 16.0, 24.0, 32.0]
@@ -1068,10 +1150,10 @@ qeroot_dir = '/Users/otani/Program/q-e/worktree/lrism-6.1/'
 pseudo_dir = qeroot_dir + 'pseudo/'
 temp_dir = qeroot_dir + 'tempdir/'
 
-# %% [markdown] tags=[] jp-MarkdownHeadingCollapsed=true
-# ##### 入力ファイルを生成
+# %% [markdown] tags=[] jp-MarkdownHeadingCollapsed=true tags=["remove-cell"]
+# #### 入力ファイルを生成
 
-# %% tags=[]
+# %% tags=["remove-cell"]
 #rism_start = [1.0, -3.0, -7.0, -11.0]
 rism_start = [-0.1, -3.0, -7.0, -11.0]
 for index, item in enumerate(prefix):
@@ -1163,10 +1245,10 @@ for index, item in enumerate(prefix):
     write(inpfile, slab_ESM, format='espresso-in', input_data=input_data, solvents_info=solv_info,
       pseudopotentials=pseudopotentials, kpts=(2, 2, 1), koffset=(0, 0, 0))
 
-# %% [markdown] tags=[] jp-MarkdownHeadingCollapsed=true
-# ##### ジョブスクリプトの作成
+# %% [markdown] tags=[] jp-MarkdownHeadingCollapsed=true tags=["remove-cell"]
+# #### ジョブスクリプトの作成
 
-# %% tags=[]
+# %% tags=["remove-cell"]
 try:
     cmp_host
 except NameError:
@@ -1205,10 +1287,10 @@ else:
     else:
         print('no calculation resorce specified!')
 
-# %% [markdown] tags=[]
-# ##### 結果をプロット
+# %% [markdown] tags=["remove-cell"]
+# #### 結果をプロット
 
-# %% tags=[]
+# %% tags=["remove-input"]
 #プロットのデフォルト値にリセット
 prefix = ['r8_rism', 'r16_rism', 'r24_rism', 'r32_rism']
 plt.rcParams.update(plt.rcParamsDefault)
@@ -1297,8 +1379,30 @@ plt.vlines( 46.86/2   , y_min, y_max, linestyle='solid', color='b')
 #plt.savefig(work_dir + 'esm.pdf')
 plt.show()
 
+# %% [markdown]
+# `````{admonition} 結果
+# :class: info
+# - expand cellが全くなしなので、右の真空が8$\mathrm{\mathring{A}}$の時は全然おかしな結果となるのは当たり前
+# - 右の真空雨が16$\mathrm{\mathring{A}}$以上では何となく収束する方向に向かってそうな感じ
+# `````
+
+# %% [markdown]
+# `````{admonition} 考察
+# :class: important
+# - 上のESM計算がセルの長さに対して収束していないので、多分、結果はそれを引きずっている。
+# `````
+
+# %% [markdown] tags=[]
+# `````{admonition} Todo
+# :class: warning
+# - まずESMの結果が収束する方向に持って行ったほうが良い。
+# `````
+
 # %% [markdown] toc-hr-collapsed=true
-# ### Janakの定理確認(ESM)
+# # Janakの定理確認(ESM)
+
+# %% [markdown]
+# ## 2022091811
 
 # %%
 prefix = ['m03', 'm02', 'm01', 'pm0', 'p01', 'p02', 'p03']
@@ -1315,7 +1419,7 @@ pseudo_dir = qeroot_dir + 'pseudo/'
 temp_dir = qeroot_dir + 'tempdir/'
 
 # %% [markdown] tags=[] jp-MarkdownHeadingCollapsed=true
-# ##### 入力ファイルを生成
+# ### 入力ファイルを生成
 
 # %% tags=[]
 for index, item in enumerate(prefix):
@@ -1371,7 +1475,7 @@ for index, item in enumerate(prefix):
       pseudopotentials=pseudopotentials, kpts=(24, 24, 1), koffset=(1, 1, 0))
 
 # %% [markdown] tags=[] jp-MarkdownHeadingCollapsed=true jp-MarkdownHeadingCollapsed=true tags=[]
-# ##### ジョブスクリプトの作成
+# ### ジョブスクリプトの作成
 
 # %% tags=[]
 try:
@@ -1411,7 +1515,7 @@ else:
         print('no calculation resorce specified!')
 
 # %% [markdown] tags=[]
-# ##### 結果をプロット
+# ### 結果をプロット
 
 # %% tags=[]
 #プロットのデフォルト値にリセット
@@ -1487,8 +1591,186 @@ plt.show()
 
 # %%
 
-# %% [markdown] tags=[] jp-MarkdownHeadingCollapsed=true tags=[] jp-MarkdownHeadingCollapsed=true jp-MarkdownHeadingCollapsed=true tags=[]
-# ### 図を描く(plot_1drism, plot_esm1, plot_rism1を利用）
+# %% [markdown] jp-MarkdownHeadingCollapsed=true tags=[] jp-MarkdownHeadingCollapsed=true tags=[] jp-MarkdownHeadingCollapsed=true tags=[] jp-MarkdownHeadingCollapsed=true toc-hr-collapsed=true
+# # Dmitrii
+
+# %%
+work_dir = root_dir + 'Dmitrii/'
+
+# %% [markdown]
+# ## 構造を読み込む
+
+# %%
+qe_output = read_espresso_out(work_dir + '1c_slab322_vcrelax.log', -1)
+
+# %%
+aobj = qe_output
+print(f' Unit cell: a = ({aobj.cell[0,0]:9.5f}, {aobj.cell[0,1]:9.5f}, {aobj.cell[0,2]:9.5f})')
+print(f'            b = ({aobj.cell[1,0]:9.5f}, {aobj.cell[1,1]:9.5f}, {aobj.cell[1,2]:9.5f})')
+print(f'            c = ({aobj.cell[2,0]:9.5f}, {aobj.cell[2,1]:9.5f}, {aobj.cell[2,2]:9.5f})')
+print(f' Number of atoms: {len(aobj.positions):5d}')
+print(f' Species, Positions:')
+for i in range(len(aobj.positions)):
+    print(f'  \'{aobj.symbols[i]:<2}\' ({aobj.positions[i,0]:9.5f}, {aobj.positions[i,1]:9.5f}, {aobj.positions[i,2]:9.5f})')
+
+# %% [markdown] tags=[]
+# rvac=16.0のセルでESM計算で収束した電子状態を使って本山さんの開発したコードでRISM領域を広げながら計算する。
+
+# %%
+prefix = ['r16+8_rism', 'r16+16_rism']
+esm_prefix = 'r16_bc1'
+lvac = 8.0
+rvac = 16.0
+work_dir = root_dir + '2022091115/'
+if not os.path.exists(work_dir):
+    print(work_dir + " not found. Make dir")
+    os.makedirs(work_dir)
+# QEbranch: rism_expand_oneside 54d66b07
+qeroot_dir = '/Users/otani/Program/q-e/'
+pseudo_dir = qeroot_dir + 'pseudo/'
+temp_dir = qeroot_dir + 'tempdir/'
+
+# %% tags=[]
+rism_length = [8.0, 16.0]
+for index, item in enumerate(prefix):
+    #新しいobjectにqe_inputをコピー
+    slab_ESM = copy.deepcopy(qe_input)
+    #上の原子位置からスラブの厚みを単純に計算
+    slab_thickness = qe_input.positions[2,2] - qe_input.positions[0,2]
+    #スラブの左端の原子をz=0にずらす
+    slab_ESM.translate((0.0,0.0,qe_input.positions[2,2]))
+    #ユニットセルの大きさを再計算
+    a = slab_ESM.cell[0,0]
+    b = slab_ESM.cell[1,1]
+    c = lvac + slab_thickness + rvac
+    #ユニットセルの大きさを設定
+    slab_ESM.set_cell([a,b,c])
+    #ユニットセルの大きさの変更に合わせて、スラブの左端の原子を真空がlvacになるようにする
+    slab_ESM.translate((0.0,0.0,lvac))
+    #ESM用にずらす
+    slab_ESM.translate((0.0,0.0,-slab_ESM.cell[2,2]/2.0))
+    #PWの入力を作る
+    pseudopotentials = {'Li':'Li.pbe-n-van.UPF'}
+    input_data = {
+        'control': {
+            'calculation' : 'scf',
+            'restart_mode': 'from_scratch',
+            'pseudo_dir'  : pseudo_dir,
+            'outdir'      : temp_dir,
+            'prefix'      : prefix[index],
+            'tprnfor'     : False,
+            'trism'       : True,
+        },
+        'system': {
+            'ibrav'          : 0,
+            'ntyp'           : 0,
+            'nat'            : 5,
+            'ecutwfc'        : 50.0,
+            'ecutrho'        : 300.0,
+            'occupations'    : 'smearing',
+            'smearing'       : 'gauss',
+            'degauss'        : 0.01,
+            'tot_charge'     : 0.0,
+            'assume_isolated': 'esm',
+            'esm_bc'         : 'bc1',
+        },
+        'electrons': {
+            #'diagonalization': 'rmm-davidson',
+            'diagonalization' : 'rmm',
+            'mixing_beta'     : 0.4,
+            'conv_thr'        : 1000.0,
+            'startingpot'     : 'file',
+            'startingwfc'     : 'file',
+        },
+        'rism': {
+            'nsolv'                  : 1,
+            'closure'                : 'kh',
+            'tempv'                  : 300.0,
+            'ecutsolv'               : 144.0,
+            'solute_lj(1)'           : 'uff',
+            'starting1d'             : 'zero',
+            'starting3d'             : 'zero',
+            'rism3d_conv_level'      : 0.7,
+            'laue_rism_length_unit'  : 'angstrom',
+            'laue_expand_right'      : 30.0,
+            'laue_expand_left'       : 0.0,
+            'laue_starting_right'    : -3.0,
+            'laue_buffer_right'      : 8.0,
+            'laue_rism_length_right' : rism_length[index],
+        },
+    }
+    solv_info = {
+        'density_unit' : 'mol/L',
+        'EtOH' : [-1, 'Ethanol.oplsua.MOL'],
+    }
+    #1drismの結果があれば、それを読み込むように変更
+    if os.path.isfile(temp_dir + prefix[index] + '.save/1d-rism_gvv_r.1.xml'):
+        input_data['rism']['starting1d'] = 'file'
+    #ESMの結果があれば、それを読み込むように変更
+    if os.path.isfile(temp_dir + esm_prefix + '.save/charge-density.dat'):
+        input_data['electrons']['startingpot'] = 'file'
+        if not os.path.exists(temp_dir + prefix[index] + '.save'):
+            print(temp_dir + prefix[index] + '.save' + " not found. Make dir")
+            os.makedirs(temp_dir + prefix[index] + '.save')
+        shutil.copy(temp_dir + esm_prefix + '.save/charge-density.dat', temp_dir + prefix[index] + '.save/')
+    if os.path.isfile(temp_dir + esm_prefix + '.save/wfc1.dat'):
+        input_data['electrons']['startingwfc'] = 'file'
+        if not os.path.exists(temp_dir + prefix[index] + '.save'):
+            print(temp_dir + prefix[index] + '.save' + " not found. Make dir")
+            os.makedirs(temp_dir + prefix[index] + '.save')
+        for file in glob.glob(temp_dir + esm_prefix + '.save/wfc*.dat'):
+            shutil.copy(file, temp_dir + prefix[index] + '.save/')
+    #inputファイルの出力
+    inpfile = work_dir + prefix[index] + '.in'
+    write(inpfile, slab_ESM, format='espresso-in', input_data=input_data, solvents_info=solv_info,
+      pseudopotentials=pseudopotentials, kpts=(2, 2, 1), koffset=(0, 0, 0))
+    #計算時の入出力ファイル
+    inpfile = prefix[index] + '.in'
+    outfile = prefix[index] + '.out'
+    #逐次ジョブ投入用シェルスクリプト
+    shfile = work_dir + prefix[index] + '.sh'
+    with open(shfile, 'w', encoding='UTF-8') as f:
+        f.write('#!/usr/bin/env bash\n')
+        f.write('export OMP_NUM_THREADS=1; mpirun -np 4 ' + qeroot_dir + 'bin/pw.x -nk 1' +
+                ' < ' + inpfile + ' > ' + outfile + ' 2>&1\n')
+        f.write('mv ' + temp_dir + prefix[index] + '.xml ' + work_dir + prefix[index] + '.xml\n')
+        f.write('mv ' + temp_dir + prefix[index] + '.esm1 ' + work_dir + prefix[index] + '.esm1\n')
+        f.write('mv ' + temp_dir + prefix[index] + '.1drism ' + work_dir + prefix[index] + '.1drism\n')
+        f.write('mv ' + temp_dir + prefix[index] + '.rism1 ' + work_dir + prefix[index] + '.rism1\n')
+    os.chmod(shfile, 0o744)
+#一気にジョブ投入量シェルスクリプト
+shfile = work_dir + 'all.sh'
+with open(shfile, 'w', encoding='UTF-8') as f:
+    f.write('#!/usr/bin/env bash\n')
+    for index, item in enumerate(prefix):
+        inpfile = prefix[index] + '.in'
+        outfile = prefix[index] + '.out'
+        f.write('export OMP_NUM_THREADS=1; mpirun -np 4 ' + qeroot_dir + 'bin/pw.x -nk 1' + ' < ' +
+                inpfile + ' > ' + outfile + ' 2>&1\n')
+        f.write('mv ' + temp_dir + prefix[index] + '.xml ' + work_dir + prefix[index] + '.xml\n')
+        f.write('mv ' + temp_dir + prefix[index] + '.esm1 ' + work_dir + prefix[index] + '.esm1\n')
+        f.write('mv ' + temp_dir + prefix[index] + '.1drism ' + work_dir + prefix[index] + '.1drism\n')
+        f.write('mv ' + temp_dir + prefix[index] + '.rism1 ' + work_dir + prefix[index] + '.rism1\n')
+os.chmod(shfile, 0o744)
+
+# %% [markdown] jp-MarkdownHeadingCollapsed=true tags=[] toc-hr-collapsed=true
+# ### Li-EtOHの(conventional)ESM-RISM計算(DFT fix)
+
+# %%
+print(chr(0x03B1),chr(0x212B),'\u03B1')
+
+# %%
+greek_letterz=[chr(code) for code in range(945,970)]
+
+print(greek_letterz)
+
+# %%
+print(r'$\alpha$')
+
+# %%
+
+# %% [markdown] tags=[] jp-MarkdownHeadingCollapsed=true tags=[] jp-MarkdownHeadingCollapsed=true jp-MarkdownHeadingCollapsed=true tags=[] jp-MarkdownHeadingCollapsed=true
+# # 図を描く(plot_1drism, plot_esm1, plot_rism1を利用）
 
 # %%
 plot_1drism(work_dir + prefix[0] + '.1drism', '1drism file')
@@ -2057,183 +2339,5 @@ xml_data = pw_document.to_dict()
 
 # %% tags=[]
 xml_data
-
-# %%
-
-# %% [markdown] jp-MarkdownHeadingCollapsed=true tags=[] jp-MarkdownHeadingCollapsed=true tags=[] jp-MarkdownHeadingCollapsed=true
-# # Dmitrii
-
-# %%
-work_dir = root_dir + 'Dmitrii/'
-
-# %% [markdown]
-# ### 構造を読み込む
-
-# %%
-qe_output = read_espresso_out(work_dir + '1c_slab322_vcrelax.log', -1)
-
-# %%
-aobj = qe_output
-print(f' Unit cell: a = ({aobj.cell[0,0]:9.5f}, {aobj.cell[0,1]:9.5f}, {aobj.cell[0,2]:9.5f})')
-print(f'            b = ({aobj.cell[1,0]:9.5f}, {aobj.cell[1,1]:9.5f}, {aobj.cell[1,2]:9.5f})')
-print(f'            c = ({aobj.cell[2,0]:9.5f}, {aobj.cell[2,1]:9.5f}, {aobj.cell[2,2]:9.5f})')
-print(f' Number of atoms: {len(aobj.positions):5d}')
-print(f' Species, Positions:')
-for i in range(len(aobj.positions)):
-    print(f'  \'{aobj.symbols[i]:<2}\' ({aobj.positions[i,0]:9.5f}, {aobj.positions[i,1]:9.5f}, {aobj.positions[i,2]:9.5f})')
-
-# %% [markdown] tags=[]
-# rvac=16.0のセルでESM計算で収束した電子状態を使って本山さんの開発したコードでRISM領域を広げながら計算する。
-
-# %%
-prefix = ['r16+8_rism', 'r16+16_rism']
-esm_prefix = 'r16_bc1'
-lvac = 8.0
-rvac = 16.0
-work_dir = root_dir + '2022091115/'
-if not os.path.exists(work_dir):
-    print(work_dir + " not found. Make dir")
-    os.makedirs(work_dir)
-# QEbranch: rism_expand_oneside 54d66b07
-qeroot_dir = '/Users/otani/Program/q-e/'
-pseudo_dir = qeroot_dir + 'pseudo/'
-temp_dir = qeroot_dir + 'tempdir/'
-
-# %% tags=[]
-rism_length = [8.0, 16.0]
-for index, item in enumerate(prefix):
-    #新しいobjectにqe_inputをコピー
-    slab_ESM = copy.deepcopy(qe_input)
-    #上の原子位置からスラブの厚みを単純に計算
-    slab_thickness = qe_input.positions[2,2] - qe_input.positions[0,2]
-    #スラブの左端の原子をz=0にずらす
-    slab_ESM.translate((0.0,0.0,qe_input.positions[2,2]))
-    #ユニットセルの大きさを再計算
-    a = slab_ESM.cell[0,0]
-    b = slab_ESM.cell[1,1]
-    c = lvac + slab_thickness + rvac
-    #ユニットセルの大きさを設定
-    slab_ESM.set_cell([a,b,c])
-    #ユニットセルの大きさの変更に合わせて、スラブの左端の原子を真空がlvacになるようにする
-    slab_ESM.translate((0.0,0.0,lvac))
-    #ESM用にずらす
-    slab_ESM.translate((0.0,0.0,-slab_ESM.cell[2,2]/2.0))
-    #PWの入力を作る
-    pseudopotentials = {'Li':'Li.pbe-n-van.UPF'}
-    input_data = {
-        'control': {
-            'calculation' : 'scf',
-            'restart_mode': 'from_scratch',
-            'pseudo_dir'  : pseudo_dir,
-            'outdir'      : temp_dir,
-            'prefix'      : prefix[index],
-            'tprnfor'     : False,
-            'trism'       : True,
-        },
-        'system': {
-            'ibrav'          : 0,
-            'ntyp'           : 0,
-            'nat'            : 5,
-            'ecutwfc'        : 50.0,
-            'ecutrho'        : 300.0,
-            'occupations'    : 'smearing',
-            'smearing'       : 'gauss',
-            'degauss'        : 0.01,
-            'tot_charge'     : 0.0,
-            'assume_isolated': 'esm',
-            'esm_bc'         : 'bc1',
-        },
-        'electrons': {
-            #'diagonalization': 'rmm-davidson',
-            'diagonalization' : 'rmm',
-            'mixing_beta'     : 0.4,
-            'conv_thr'        : 1000.0,
-            'startingpot'     : 'file',
-            'startingwfc'     : 'file',
-        },
-        'rism': {
-            'nsolv'                  : 1,
-            'closure'                : 'kh',
-            'tempv'                  : 300.0,
-            'ecutsolv'               : 144.0,
-            'solute_lj(1)'           : 'uff',
-            'starting1d'             : 'zero',
-            'starting3d'             : 'zero',
-            'rism3d_conv_level'      : 0.7,
-            'laue_rism_length_unit'  : 'angstrom',
-            'laue_expand_right'      : 30.0,
-            'laue_expand_left'       : 0.0,
-            'laue_starting_right'    : -3.0,
-            'laue_buffer_right'      : 8.0,
-            'laue_rism_length_right' : rism_length[index],
-        },
-    }
-    solv_info = {
-        'density_unit' : 'mol/L',
-        'EtOH' : [-1, 'Ethanol.oplsua.MOL'],
-    }
-    #1drismの結果があれば、それを読み込むように変更
-    if os.path.isfile(temp_dir + prefix[index] + '.save/1d-rism_gvv_r.1.xml'):
-        input_data['rism']['starting1d'] = 'file'
-    #ESMの結果があれば、それを読み込むように変更
-    if os.path.isfile(temp_dir + esm_prefix + '.save/charge-density.dat'):
-        input_data['electrons']['startingpot'] = 'file'
-        if not os.path.exists(temp_dir + prefix[index] + '.save'):
-            print(temp_dir + prefix[index] + '.save' + " not found. Make dir")
-            os.makedirs(temp_dir + prefix[index] + '.save')
-        shutil.copy(temp_dir + esm_prefix + '.save/charge-density.dat', temp_dir + prefix[index] + '.save/')
-    if os.path.isfile(temp_dir + esm_prefix + '.save/wfc1.dat'):
-        input_data['electrons']['startingwfc'] = 'file'
-        if not os.path.exists(temp_dir + prefix[index] + '.save'):
-            print(temp_dir + prefix[index] + '.save' + " not found. Make dir")
-            os.makedirs(temp_dir + prefix[index] + '.save')
-        for file in glob.glob(temp_dir + esm_prefix + '.save/wfc*.dat'):
-            shutil.copy(file, temp_dir + prefix[index] + '.save/')
-    #inputファイルの出力
-    inpfile = work_dir + prefix[index] + '.in'
-    write(inpfile, slab_ESM, format='espresso-in', input_data=input_data, solvents_info=solv_info,
-      pseudopotentials=pseudopotentials, kpts=(2, 2, 1), koffset=(0, 0, 0))
-    #計算時の入出力ファイル
-    inpfile = prefix[index] + '.in'
-    outfile = prefix[index] + '.out'
-    #逐次ジョブ投入用シェルスクリプト
-    shfile = work_dir + prefix[index] + '.sh'
-    with open(shfile, 'w', encoding='UTF-8') as f:
-        f.write('#!/usr/bin/env bash\n')
-        f.write('export OMP_NUM_THREADS=1; mpirun -np 4 ' + qeroot_dir + 'bin/pw.x -nk 1' +
-                ' < ' + inpfile + ' > ' + outfile + ' 2>&1\n')
-        f.write('mv ' + temp_dir + prefix[index] + '.xml ' + work_dir + prefix[index] + '.xml\n')
-        f.write('mv ' + temp_dir + prefix[index] + '.esm1 ' + work_dir + prefix[index] + '.esm1\n')
-        f.write('mv ' + temp_dir + prefix[index] + '.1drism ' + work_dir + prefix[index] + '.1drism\n')
-        f.write('mv ' + temp_dir + prefix[index] + '.rism1 ' + work_dir + prefix[index] + '.rism1\n')
-    os.chmod(shfile, 0o744)
-#一気にジョブ投入量シェルスクリプト
-shfile = work_dir + 'all.sh'
-with open(shfile, 'w', encoding='UTF-8') as f:
-    f.write('#!/usr/bin/env bash\n')
-    for index, item in enumerate(prefix):
-        inpfile = prefix[index] + '.in'
-        outfile = prefix[index] + '.out'
-        f.write('export OMP_NUM_THREADS=1; mpirun -np 4 ' + qeroot_dir + 'bin/pw.x -nk 1' + ' < ' +
-                inpfile + ' > ' + outfile + ' 2>&1\n')
-        f.write('mv ' + temp_dir + prefix[index] + '.xml ' + work_dir + prefix[index] + '.xml\n')
-        f.write('mv ' + temp_dir + prefix[index] + '.esm1 ' + work_dir + prefix[index] + '.esm1\n')
-        f.write('mv ' + temp_dir + prefix[index] + '.1drism ' + work_dir + prefix[index] + '.1drism\n')
-        f.write('mv ' + temp_dir + prefix[index] + '.rism1 ' + work_dir + prefix[index] + '.rism1\n')
-os.chmod(shfile, 0o744)
-
-# %% [markdown] jp-MarkdownHeadingCollapsed=true tags=[] toc-hr-collapsed=true
-# ### Li-EtOHの(conventional)ESM-RISM計算(DFT fix)
-
-# %%
-print(chr(0x03B1),chr(0x212B),'\u03B1')
-
-# %%
-greek_letterz=[chr(code) for code in range(945,970)]
-
-print(greek_letterz)
-
-# %%
-print(r'$\alpha$')
 
 # %%
