@@ -2,6 +2,8 @@ _build
 .ipynb_checkpoints
 .jupyter_cache
 jupyter_execute
+/venv*
+.autoenv*
 
 *.ipynb
 conf.py
