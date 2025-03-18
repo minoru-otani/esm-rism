@@ -1,4 +1,6 @@
 venv/*
 content/.ipynb_checkpoints
 content/*.in
-content/out
+content/*.out
+content/*.sh
+content/out/*
