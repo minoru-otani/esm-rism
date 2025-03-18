@@ -10,3 +10,4 @@ requests
 jupyterlab_vim
 jupytext
 ase
+pymatgen
