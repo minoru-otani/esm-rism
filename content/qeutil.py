@@ -15,13 +15,13 @@ def extract_structure_data(atoms):
     }
     return structure_data
 
-def write_qe_input(input_data, atomic_species, structure_data, filename="qe_input.in", kpts=None, koffset=(0,0,0)):
+def write_qe_input(prefix, input_data, atomic_species, structure_data, kpts=None, koffset=(0,0,0)):
     """
     Quantum ESPRESSO の入力ファイルを生成する関数。
+    `prefix`: プレフィックス
     `input_data`: 計算パラメータ（辞書形式）
     `atomic_species`: {'元素記号': (原子量, 擬ポテンシャルファイル名)}
     `structure_data`: `extract_structure_data` で取得したデータ(辞書形式)
-    `filename`: 出力ファイル名(引数がなければデフォルトで 'qe_input.in' を出力)
     `kpts`: k点グリッド
     `koffset`: k点のオフセット
     """
@@ -39,8 +39,8 @@ def write_qe_input(input_data, atomic_species, structure_data, filename="qe_inpu
         lines.append("/")  # ✅ 
 
         return "\n".join(lines)
-
-    with open(filename, "w") as f:
+    inpfile = f"{prefix}.in"
+    with open(inpfile, "w") as f:
         for section in sections:
             if section in input_data:
                 f.write(format_section(section, input_data[section]) + "\n\n")
@@ -68,7 +68,65 @@ def write_qe_input(input_data, atomic_species, structure_data, filename="qe_inpu
             f.write(f"{vec[0]:12.8f} {vec[1]:12.8f} {vec[2]:12.8f}\n")
         f.write("\n")
 
-    print(f"Quantum ESPRESSO input file '{filename}' has been generated.")
+    print(f"Quantum ESPRESSO input file '{inpfile}' has been generated.")
+
+def write_job_script(prefix, prjinfo, jobinfo):
+    """
+    Quantum ESPRESSO のジョブスクリプトを作成する関数。
+
+    Parameters:
+    -----------
+    prefixes : list
+        計算する prefix のリスト
+    prjinfo : dict
+        プロジェクト情報 （project名, ファイル格納場所 など）
+    jobinfo : dict
+        ジョブの設定情報 (node, mpinum, ompnum, cputime など)
+    """
+    inpfile = f"{prefix}.in" # input file作成
+    outfile = f"{prefix}.out" # output file作成
+    jobfile = f"{prefix}.sh" #　job script作成
+    # 計算リソース情報を取得
+    comp = jobinfo["comp"]
+    node = jobinfo["node"]
+    mpinum = jobinfo["mpinum"]
+    ompnum = jobinfo["ompnum"]
+    cputime = str(jobinfo["cputime"])
+    # 実行する QE バイナリのパス
+    pw_exe = os.path.join(prjinfo['bindir'], "pw.x")
+    # 並列実行の設定
+    para_img = jobinfo["para_img"]
+    para_kpt = jobinfo["para_kpt"]
+    para_tsk = jobinfo["para_tsk"]
+    para_bnd = jobinfo["para_bnd"]
+    para_diag = jobinfo["para_diag"]
+    # 計算環境に応じたジョブスクリプトの選択
+    if comp == "macos":
+        job_script = f"""#!/bin/bash
+export OMP_NUM_THREADS={ompnum}
+mpirun -np {mpinum} {pw_exe} -nk {para_kpt} -nb {para_bnd} -nt {para_tsk} -nd {para_diag} < {inpfile} > {outfile} 2>&1
+"""
+    elif comp == "slurm":
+        job_script = f"""#!/bin/bash
+#SBATCH --job-name={prefix}
+#SBATCH --nodes={node}
+#SBATCH --ntasks-per-node={mpinum}
+#SBATCH --cpus-per-task={ompnum}
+#SBATCH --time={cputime}
+#SBATCH --output={prefix}.slurm.out
+#SBATCH --error={prefix}.slurm.err
+
+# モジュールのロード (必要なら)
+module load quantum-espresso
+
+export OMP_NUM_THREADS={ompnum}
+mpirun -np {mpinum} {pw_exe} -input {inpfile} > {outfile}
+"""
+    # ジョブスクリプトを書き込む
+    with open(jobfile, "w") as f:
+        f.write(job_script)
+        
+    print(f"Job script file '{jobfile}' has been generated.")
     
 def qe_bool(value):
     """ Quantum ESPRESSO 用の Boolean 変換 """
@@ -164,7 +222,7 @@ def parse_qe_xml(prefixes, outdir):
             print(f"Error reading {xml_file}: {e}")
         
     return scf_result
-    
+
 def plot_esm1(filename, titlename=''):
     esm1 = np.loadtxt(filename, comments='#')
 
